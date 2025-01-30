@@ -57,6 +57,9 @@ public:
     void setReverse(bool reverse) noexcept                      { this->reverse = reverse; }
     
     Loris::PartialList& partials() noexcept                     { return m_partials; }
+
+    void setFftSize(int size) noexcept;
+    int getFftSize() const noexcept;
     
 private:
     
@@ -80,6 +83,7 @@ private:
     Loris::PartialList m_partials;
     std::vector<double> buffer;
     double sampleRate = 0;
+    int fftSize; // Member variable for FFT size
     
 };
 

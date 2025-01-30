@@ -129,9 +129,14 @@ public:
         update(this->partials, this->samplePitch);
     }
 
+    void applySpectralTuning(Loris::PartialList &partials, const std::vector<double> &scale, double intensity);
+    void applyPartialTrajectorySmoothing(Loris::PartialList &partials, double smoothingFactor);
+
 private:
     Loris::PartialList partials;
     double samplePitch;
+    double intensityKnob;
+    bool maintainPhaseRelationships;
     
     void update(Loris::PartialList &partials, double samplePitch)
     {

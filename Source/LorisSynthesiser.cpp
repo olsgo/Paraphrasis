@@ -157,3 +157,93 @@ void LorisVoice::setCurrentPlaybackSampleRate(double rate) noexcept
     
     tailSamples = tailTimeSec * getSampleRate();
 }
+
+//==============================================================================
+void LorisSynthesiser::setup(Loris::PartialList &partials, double samplePitch)
+{
+    allNotesOff(0, false); // clear all notes before setting new partials
+    
+    this->partials.clear();
+    this->partials = std::move(partials);
+    partials.clear(); // invalidate partials due to std::move
+    
+    this->samplePitch = samplePitch;
+    
+    update(this->partials, this->samplePitch);
+}
+
+//==============================================================================
+void LorisSynthesiser::setCurrentPlaybackSampleRate(double newRate)
+{
+    juce::Synthesiser::setCurrentPlaybackSampleRate(newRate);
+
+    update(this->partials, this->samplePitch);
+}
+
+//==============================================================================
+void LorisSynthesiser::update(Loris::PartialList &partials, double samplePitch)
+{
+    Loris::PartialList resampledPartials(partials);
+    
+    if ( ! resampledPartials.empty() )
+    {
+        Loris::Resampler resampler(1 / getSampleRate());
+        resampler.setPhaseCorrect(true);
+        resampler.quantize(resampledPartials.begin(), resampledPartials.end());
+    }
+    
+    LorisVoice *voice;
+    int numVoices = getNumVoices();
+    for (int i = 0; i < numVoices; i++)
+    {
+        voice = dynamic_cast<LorisVoice *>(getVoice(i));
+        if (voice)
+            voice->setup(resampledPartials, samplePitch);
+    }
+}
+
+//==============================================================================
+void LorisSynthesiser::applySpectralTuning(Loris::PartialList &partials, const std::vector<double> &scale, double intensity)
+{
+    for (auto &partial : partials)
+    {
+        for (auto &breakpoint : partial)
+        {
+            double originalFreq = breakpoint.frequency();
+            double closestFreq = scale[0];
+            double minDiff = std::abs(originalFreq - scale[0]);
+            
+            for (const auto &freq : scale)
+            {
+                double diff = std::abs(originalFreq - freq);
+                if (diff < minDiff)
+                {
+                    minDiff = diff;
+                    closestFreq = freq;
+                }
+            }
+            
+            double newFreq = originalFreq + intensity * (closestFreq - originalFreq);
+            breakpoint.setFrequency(newFreq);
+        }
+    }
+}
+
+//==============================================================================
+void LorisSynthesiser::applyPartialTrajectorySmoothing(Loris::PartialList &partials, double smoothingFactor)
+{
+    for (auto &partial : partials)
+    {
+        for (size_t i = 1; i < partial.size(); ++i)
+        {
+            auto &prevBreakpoint = partial[i - 1];
+            auto &currBreakpoint = partial[i];
+            
+            double smoothedFreq = prevBreakpoint.frequency() + smoothingFactor * (currBreakpoint.frequency() - prevBreakpoint.frequency());
+            currBreakpoint.setFrequency(smoothedFreq);
+            
+            double smoothedAmp = prevBreakpoint.amplitude() + smoothingFactor * (currBreakpoint.amplitude() - prevBreakpoint.amplitude());
+            currBreakpoint.setAmplitude(smoothedAmp);
+        }
+    }
+}
