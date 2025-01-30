@@ -33,7 +33,8 @@
 SampleAnalyzer::SampleAnalyzer(AudioFormatManager &formatManager, WaitableEvent& syncObj, const String &name)
     : ThreadWithProgressWindow(name, false, false),
       formatManager(formatManager),
-      analyzerSync(syncObj)
+      analyzerSync(syncObj),
+      fftSize(1024) // Default FFT size
 {
 
 }
@@ -173,9 +174,22 @@ void SampleAnalyzer::analyze() noexcept
     // analyze
     setStatusMessage("Anayzing sample...");
     Loris::Analyzer analyzer(m_resolution);
+    analyzer.setFftSize(fftSize); // Set FFT size
     analyzer.analyze(buffer, sampleRate);
     
     m_partials.clear();
     m_partials = std::move(analyzer.partials());
     
+}
+
+//==============================================================================
+void SampleAnalyzer::setFftSize(int size) noexcept
+{
+    fftSize = size;
+}
+
+//==============================================================================
+int SampleAnalyzer::getFftSize() const noexcept
+{
+    return fftSize;
 }
