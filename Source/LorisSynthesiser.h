@@ -17,8 +17,6 @@
  along with this program; if not, write to the Free Software
  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  
- tom@virtualanalogy.com
- 
 */
 
 #ifndef LORISSYNTHESISER_H_INCLUDED
@@ -162,4 +160,4 @@ private:
 };
 
 
-#endif  // LORISSYNTHESISER_H_INCLUDED
+#endif  // LORISSYNTHESER_H_INCLUDED

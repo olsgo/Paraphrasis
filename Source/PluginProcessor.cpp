@@ -9,7 +9,7 @@
  (at your option) any later version.
  
  This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY, without even the implied warranty of
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  GNU General Public License for more details.
  
@@ -149,6 +149,19 @@ void ParaphrasisAudioProcessor::processBlock(AudioSampleBuffer& buffer, MidiBuff
     for (int i = buffer.getNumChannels(); --i > 0;)
         buffer.copyFrom(i, 0, synthetisedChannel, numSamples);
 }
+
+//==============================================================================
+void ParaphrasisAudioProcessor::applySpectralTuning(Loris::PartialList &partials, const std::vector<double> &scale, double intensity)
+{
+    synth.applySpectralTuning(partials, scale, intensity);
+}
+
+//==============================================================================
+void ParaphrasisAudioProcessor::applyPartialTrajectorySmoothing(Loris::PartialList &partials, double smoothingFactor)
+{
+    synth.applyPartialTrajectorySmoothing(partials, smoothingFactor);
+}
+
 //==============================================================================
 bool ParaphrasisAudioProcessor::hasEditor() const
 {

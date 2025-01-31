@@ -70,6 +70,9 @@ public:
         return m_isReady;
     }
 
+    void applySpectralTuning(Loris::PartialList &partials, const std::vector<double> &scale, double intensity);
+    void applyPartialTrajectorySmoothing(Loris::PartialList &partials, double smoothingFactor);
+
 private:
     String loadedSamplePath;    // Path to actual data
     bool m_isReady = false;     // Is processor (analysis data) ready for synthesis?
